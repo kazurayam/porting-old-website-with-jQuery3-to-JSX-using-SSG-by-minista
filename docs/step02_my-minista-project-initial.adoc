@@ -1,0 +1,80 @@
+== step02: JSXで書き換えた
+
+`$ROOT/my-minista-project` を作った。別記事 link:https://zenn.dev/kazurayam/articles/ae376ca6bff235[スタティックサイトジェネレーター minista を試してみた] で詳細を説明したサンプルを下敷きにした。HTMLを少し修正し、JavaScriptを追加した。 `my-minista-project/src/assets/js/windowResize.js` がstep01で説明した `800x875` とか `555x875` とか `800x389` とかの動的表示を実装している。 
+
+[source,shell]
+----
+$ tree my-minista-project -I node_modules
+my-minista-project
+├── bun.lock
+├── package.json
+├── public
+│   ├── favicon.svg
+│   └── icons.svg
+├── src
+│   ├── assets
+│   │   ├── css
+│   │   │   └── index.css
+│   │   ├── images
+│   │   │   └── seagull.jpg
+│   │   └── js
+│   │       ├── jquery-3.6.0.min.js
+│   │       └── windowResize.js
+│   ├── layouts
+│   │   ├── footer.tsx
+│   │   ├── header.tsx
+│   │   ├── index.tsx
+│   │   └── nav.tsx
+│   └── pages
+│       └── index.tsx
+├── tsconfig.json
+└── vite.config.ts
+
+9 directories, 15 files
+----
+
+
+* `vite.config.ts`
+
+[source,typescript]
+----
+include::../my-minista-project/vite.config.ts[]
+----
+
+* `package.json`
+
+[source,json]
+----
+include::../my-minista-project/package.json[]
+----
+
+* `src/layouts/index.ts`
+
+[source,typescript]
+----
+include::../my-minista-project/src/layouts/index.ts
+----
+
+このコードの中にわたしがJSXに挑みたかった理由が現れている。HTMLの `<header>` 要素と `<nav>` 要素と `<footer>` 要素をコンポーネントとしてのJSXコードに分離し、コンポーネント `MyHeader` と `MyNav` と `MyFooter` の組み合わせとしてページのレイアウトを構成する、ということをやりたかった。
+
+* `src/layouts/header.ts`
+
+[source,typescript]
+----
+include::../my-minista-project/src/layouts/header.ts
+----
+
+* `src/layouts/nav.ts`
+
+[source,typescript]
+----
+include::../my-minista-project/src/layouts/nav.ts
+----
+
+* `src/layouts/footer.ts`
+
+[source,typescript]
+----
+include::../my-minista-project/src/layouts/footer.ts
+----
+

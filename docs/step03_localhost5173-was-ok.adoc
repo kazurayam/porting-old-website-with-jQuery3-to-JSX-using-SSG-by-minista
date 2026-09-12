@@ -1,0 +1,30 @@
+== step03: http://localhost:5173 はOKだった 
+
+`my-minista-project` が依存する外部パッケージをインストールしよう。そのために次のコマンドを実行しよう。
+
+[source,shell]
+----
+$ cd $ROOT/my-minista-project
+$ bun install
+----
+
+この記事ではJavaScriptランタイムとして link:https://bun.sh/[bun] を使った。もちろん link:https://www.npmjs.com/package/npm[npm] でも良い。この記事の内容に関するかぎりbunとnpmで違いは見当たらなかった。
+
+viteの開発サーバを起動してURL `http://localhost:5173` を目視確認してみよう。
+
+[source,shell]
+----
+$ bun run dev
+$ minista
+
+  VITE v8.2.2  ready in 5242 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+----
+
+image:{PAGES_URL}/images/031_localhost5173-1066x639.png[]
+
+開発サーバが応答したwebページは問題なく表示された。マウスでウインドウの幅を広げたり狭くしたりすれば、画面のheader部に "width x height" の数字が動くのが見えた。ブラウザのDevToolsのコンソールにエラーメッセージはひとつも出力されていなかった。わたしは `base-project` の `index.html` をJSXで書き直すことに成功した、と思った。ところがこの先でつまづいた。
+
