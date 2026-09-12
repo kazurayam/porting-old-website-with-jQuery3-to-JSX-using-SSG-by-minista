@@ -3,23 +3,23 @@
 
 # ES Module未対応のjQuery3を使っているwebサイトをJSXで書き直してministaで静的サイトを生成した話
 
-## Step01 元のwebサイト
+## Step01: 素材としてのwebサイト
 
-[`base-project/index.html`](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-ministaw/blob/article/base-project/index.html) をブラウザで開け。
+Releasesページ [starting point](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/releases/tag/startingpoint) のzipファイルをダウンロードして解凍してください。ここで作られたディレクトリを `$ROOT` という記号で表すことにします
 
-- ウインドウ幅800px,高さ874px
+ブラウザで [`$ROOT/base-project/index.html`](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/blob/article/base-project/index.html) を開いてみましょう。こんな画面が見えるはず。
 
-![001 base project 800x874](images/001-base-project-800x874.png)
+![001 base project 800x875](https://kazurayam.github.io/https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/001_base-project-800x875.png)
 
-マウスでウインドウを捕まえて幅と高さを変えるとヘッダ部に表示された数字が切り替わるのがわかる。
+ブラウザのウインドウの縁をマウスで捕まえてウインドウを伸び縮みさせると、画面の中のヘッダ部に表示された数字（幅x高さ）が変化する。
 
-- 幅555px,高さ875px
+-   555x875
 
-![001 base project 555x874](images/001-base-project-555x874.png)
+![002 base project 555x875](https://kazurayam.github.io/https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/002_base-project-555x875.png)
 
-- 幅800px,高さ389px
+-   800x389
 
-![001 base project 800x389](images/001-base-project-800x389.png)
+![003 base project 800x389](https://kazurayam.github.io/https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/003_base-project-800x389.png)
 
 HTMLのソースがこれ:
 
