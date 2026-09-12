@@ -10,10 +10,9 @@ ministaを使ってスタティックサイトジェネレーションをする�
 ES Module対応に移行しなければならなかった。エラーにいくつも遭遇した。
 エラーをひとつひとつ解決して最終的には元のHTMLサイトと同等の静的サイトをministaで生成することに生成した。
 
-ES Module非対応のjQueryに依存する古き良きHTMLサイトをJSXに移行したいと考える人がわたし以外にもしもいたら、
-同じ道を迷うことになるだろう。
-彼らの参考になればと思い、わたしが遭遇したエラーとその解消方法を記録して公開する。
+ministaのStatic Site Generationを使って古いHTMLサイトをJSXに移行しようという企てはいささか突飛かもしれない。
+だが同じことを企てる人がいないともかぎらない。彼らのためにわたしが遭遇したエラーとその解消方法を記録して公開する。
 
-- [docs](https://kazurayam.github.io/poring-HTML-with-jQuery-into-JSX-using-minista/)
+- [docs](https://kazurayam.github.io/poring-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/)
 
 A non-ES Module JavaScript library typically uses the older CommonJS or global variable patterns instead of the modern ES Modules syntax. These libraries can still be used in browsers or Node.js by loading them via a <script> tag (for globals) or converting them with tools like esm.sh or esbuild.
