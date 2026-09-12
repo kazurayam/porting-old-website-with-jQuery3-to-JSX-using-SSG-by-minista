@@ -1,0 +1,8 @@
+:REPOS_URL: https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista
+:BLOB_URL: {REPOS_URL}/blob/article
+:PAGES_URL: https://kazurayam.github.io/https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista  
+:projectVersion: 0.0.0
+
+= ES Module未対応のjQuery3を使っているwebサイトをJSXで書き直してministaで静的サイトを生成した話
+
+include::./step01-base-project.adoc[]

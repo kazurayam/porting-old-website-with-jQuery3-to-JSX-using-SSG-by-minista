@@ -1,5 +1,10 @@
-# Porting HTML with jQuery into JSX in TypeScript with minista
+# Porting old website with jQuery3 to JSX using Static Site Generation by minista
 
-jQueryを使っているHTMLをJSXに移植しようとした。TypeScriptでReact JSXを書きministaでStatic Site Generationしようとした。jQueryに関して小さな問題が生じた。試行錯誤してなんとか達成した。問題とその解決方法をメモする。
+ES Module非対応のjQuery v3.6.0を使っている古き良きHTMLサイトをTypeScript言語でJSXで書き直したいと思った。LayoutとページテンプレートをTypeScript言語でJSX構文で書いて、[minista](https://minista.qranoko.jp/) を使って静的サイトを生成したいと思った。
 
-- [docs](https://kazurayam.github.io/poring-HTML-with-jQuery-into-JSX-in-TypeScript-with-minista/)
+やってみたら様々のエラーに遭遇した。ministaを使ってスタティックサイトジェネレーションをするためには、jQueryとそれに依存するカスタムな `<script>` をES Module対応に移行しなければならないということが原因だった。エラーをひとつひとつ解決して最終的に元のHTMLサイトと同等の静的サイトをministaで生成することに生成した。
+
+古き良きHTMLサイトをJSXで書き直したいと考える人がもしいたら、わたしと同じように四苦八苦するだろう。彼らのために
+わたしが遭遇したエラーとその解消方法を記録して公開する。
+
+- [docs](https://kazurayam.github.io/poring-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/)
