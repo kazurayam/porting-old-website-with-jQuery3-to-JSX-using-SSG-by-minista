@@ -369,7 +369,7 @@ Gitタグ [step04-done](https://github.com/kazurayam/porting-old-website-with-jQ
 
 step04の修正を施した後で `bun run build` して `bun run preview` を実行した。ブラウザで <http://localhost:4173> を開いてDevToolsのコンソールを見た。するとエラーメッセージが出力されていた。
 
-![051 Cannot use import statement](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/051_Cannot-use-import-statement.png)
+![052 Cannot use import statement](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/052_Cannot-use-import-statement.png)
 
 > jquery-3.6.0.min-CvDmJdXJ.js:1 Uncaught SyntaxError: Cannot use import statement outside a module (at jquery-3.6.0.min-CvDmJdXJ.js:1:1)
 

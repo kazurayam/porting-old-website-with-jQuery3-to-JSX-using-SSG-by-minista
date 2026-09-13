@@ -2,7 +2,7 @@
 
 step04の修正を施した後で `bun run build` して `bun run preview` を実行した。ブラウザで http://localhost:4173 を開いてDevToolsのコンソールを見た。するとエラーメッセージが出力されていた。
 
-image:{PAGES_URL}/images/051_Cannot-use-import-statement.png[]
+image:{PAGES_URL}/images/052_Cannot-use-import-statement.png[]
 
 [quote]
 ____
