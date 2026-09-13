@@ -47,7 +47,7 @@ ____
 :4173/:44  GET http://localhost:4173/src/assets/js/jquery-3.6.0.min.js net::ERR_ABORTED 404 (Not Found)
 ____
 
-productionサーバは http://localhost:5173 へのリクエストに対して `my-minista-project/dist/index.html` ファイルを応答したはずだ。その中を調べた。こういうコードが書いてあった。
+productionサーバは http://localhost:4173 へのリクエストに対して `my-minista-project/dist/index.html` ファイルを応答したはずだ。その中を調べた。こういうコードが書いてあった。
 
 [source,html]
 ----
