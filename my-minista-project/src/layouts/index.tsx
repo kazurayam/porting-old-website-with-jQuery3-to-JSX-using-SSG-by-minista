@@ -20,8 +20,8 @@ export default function (props: LayoutProps) {
         {props.children}
       </main>
       <MyFooter />
-      <script src="/src/assets/js/jquery-3.6.0.min.js"></script>
-      <script src="/src/assets/js/windowResize.js"></script>
+      <script type="module" src="/src/assets/js/jquery-3.6.0.min.js"></script>
+      <script type="module" src="/src/assets/js/windowResize.js"></script>
     </>
   )
 }

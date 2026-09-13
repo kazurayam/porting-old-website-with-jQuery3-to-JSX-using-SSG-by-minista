@@ -78,9 +78,13 @@ HTMLのソースがこれ:
 
 `$ROOT/my-minista-project` を作った。別記事 [スタティックサイトジェネレーター minista を試してみた](https://zenn.dev/kazurayam/articles/ae376ca6bff235) で詳細を説明したサンプルを下敷きにした。HTMLを少し修正し、JavaScriptを追加した。 `my-minista-project/src/assets/js/windowResize.js` がstep01で説明した `800x875` とか `555x875` とか `800x389` とかの動的表示を実装している。
 
+    $ tree my-minista-project -I node_modules
     my-minista-project
     ├── bun.lock
     ├── package.json
+    ├── public
+    │   ├── favicon.svg
+    │   └── icons.svg
     ├── src
     │   ├── assets
     │   │   ├── css
@@ -100,12 +104,14 @@ HTMLのソースがこれ:
     ├── tsconfig.json
     └── vite.config.ts
 
+    9 directories, 15 files
+
 -   `vite.config.ts`
 
 <!-- -->
 
     // my-minista-project/vite.config.ts
-    import { defineConfig, pluginSsg, pluginBundle, pluginBeautify } from "minista"
+    import { defineConfig, pluginSsg, pluginBundle, pluginEntry, pluginBeautify } from "minista"
 
     export default defineConfig({
       plugins: [
@@ -119,6 +125,7 @@ HTMLのソースがこれ:
           outName: "bundle",
           useExportCss: true,
         }),
+        pluginEntry(),
         pluginBeautify()
       ],
     })

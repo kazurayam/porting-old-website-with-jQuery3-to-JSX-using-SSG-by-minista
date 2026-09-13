@@ -117,6 +117,6 @@ javascriptのファイルがbuild処理されてdistディレクトリの下に�
 </html>
 ----
 
-src属性が書き換えられて dist/assets ディレクトリ下に出力されたjavascriptファイルを適切に指し示している。pluginEntryはちゃんと動いたように見える。
+src属性が書き換えられて dist/assets ディレクトリ下に出力されたjavascriptファイルを適切に指し示している。pluginEntryがちゃんと動いたように見える。
 
-Gitタグ [step04-done] をcheckoutすればここまでの対処を完了したソースコードを取り出すことができます。
+Gitタグ link:https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/tree/step04-done[step04-done] をcheckoutすれば ここまでの対処を完了したソースコードを取り出すことができます。
