@@ -301,7 +301,7 @@ viteの開発サーバを起動してURL `http://localhost:5173` を目視確認
 
 > :4173/:44 GET <http://localhost:4173/src/assets/js/jquery-3.6.0.min.js> net::ERR\_ABORTED 404 (Not Found)
 
-productionサーバは <http://localhost:5173> へのリクエストに対して `my-minista-project/dist/index.html` ファイルを応答したはずだ。その中を調べた。こういうコードが書いてあった。
+productionサーバは <http://localhost:4173> へのリクエストに対して `my-minista-project/dist/index.html` ファイルを応答したはずだ。その中を調べた。こういうコードが書いてあった。
 
         </footer>
         <script src="/src/assets/js/jquery-3.6.0.min.js"></script>
