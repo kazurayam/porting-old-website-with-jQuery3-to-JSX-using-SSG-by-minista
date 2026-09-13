@@ -4,7 +4,10 @@ step04の修正を施した後で `bun run build` して `bun run preview` を�
 
 image:{PAGES_URL}/images/051_Cannot-use-import-statement.png[]
 
->jquery-3.6.0.min-CvDmJdXJ.js:1 Uncaught SyntaxError: Cannot use import statement outside a module (at jquery-3.6.0.min-CvDmJdXJ.js:1:1)
+[quote]
+____
+jquery-3.6.0.min-CvDmJdXJ.js:1 Uncaught SyntaxError: Cannot use import statement outside a module (at jquery-3.6.0.min-CvDmJdXJ.js:1:1)
+____
 
 このエラーを解消したい。
 
@@ -12,9 +15,12 @@ image:{PAGES_URL}/images/051_Cannot-use-import-statement.png[]
 
 "Cannot use import statement outside a module" をキーとして検索したら某AIがこんなレスを返した。
 
->This error occurs when JavaScript encounters an import statement outside of a valid ES module context. To fix it, ensure that your script tag includes type="module" 
+[quote]
+____
+This error occurs when JavaScript encounters an import statement outside of a valid ES module context. To fix it, ensure that your script tag includes type="module" 
+____
 
-このキーで検索すればたくさんのweb記事がヒットした。例えば link:https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html[Mdn, JavaScript modules] も読んだ。
+同じキーで検索したところたくさんのweb記事がヒットした。例えば link:https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html[Mdn, JavaScript modules] も読んだ。
 
 === 説明
 

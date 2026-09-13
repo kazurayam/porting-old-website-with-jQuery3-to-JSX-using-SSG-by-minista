@@ -1,3 +1,4 @@
+// src/layouts/header.tsx
 export const MyHeader = () => {
     return (
         <header className="myheader">

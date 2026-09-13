@@ -4,8 +4,10 @@ step05の修正を施した後で `bun run build` して `bun run preview` を�
 
 image:{PAGES_URL}/images/061_$-is-not-defined.png[]
 
->windowResize-DW7TLUZC.js:1 Uncaught ReferenceError: $ is not defined
->    at windowResize-DW7TLUZC.js:1:1
+[quote]
+____
+windowResize-DW7TLUZC.js:1 Uncaught ReferenceError: $ is not defined
+____
 
 エラーを発したのは `dist/assets/windowResize-DW7TLUZC.js` ファイルの第1行第１文字だ。それはこんなコードだ。
 
@@ -15,7 +17,7 @@ $(function() {
     ...
 ----
 
-古き良きjQueryを知る人にとってはお馴染みのコードだ。`windowResize-xxxxxxxx.js`はグローバル変数 `$` がjQueryによってdefineされていることを仮定して動いた。しかし実際にはグローバル変数 `$` が undefined だった。だから "Uncaught ReferenceError: $ is not defined" が発生した。
+古き良きjQueryを知る人にとってはお馴染みのコードだ。 `windowResize-xxxxxxxx.js` はグローバル変数 `$` がjQueryによってdefineされていることを仮定して動いた。しかし実際にはグローバル変数 `$` が undefined だった。だから "Uncaught ReferenceError: $ is not defined" が発生した。
 
 === 対処方法
 
@@ -27,9 +29,9 @@ step05で `dist/index.html` が
     <script type="module" src="/assets/windowResize-DW7TLUZC.js"></script>
 ----
 
-となるようにした。このコードはjquery-3.6.0が ES moduleに対応済みであることを仮定して、モジュールとしてjqueryをimportするやり方をします、と表明したことになる。ところがjquery-3.6.0は2021年3月にリリースされた古いバージョンだ。**実はjquery-3.6.0はES Moduleに未対応だ。** link:https://blog.jquery.com/2026/01/17/jquery-4-0-0/[jquery-4.0.0に関するブログ] によれば "jQuery source migrated to ES modules" しているという。だから `my-minista-project` が使うjQueryのバージョンを4.0.0に取り替えなければならない。
+となるようにした。このコードはjquery-3.6.0が ES moduleに対応済みであることを仮定して、モジュールとしてjqueryをimportします、と表明したことになる。ところがjquery-3.6.0は2021年3月にリリースされた古いバージョンだ。**実はjquery-3.6.0はES Moduleに未対応だ。** link:https://blog.jquery.com/2026/01/17/jquery-4-0-0/[jquery-4.0.0に関するブログ] によれば "jQuery source migrated to ES modules" しているという。だから `my-minista-project` が使うjQueryのバージョンを4.0.0に取り替えなければならない。
  
-もうひとつ問題がある。 `windowResize-xxxxxxxx.js` のコーディングが `$` がグローバル変数としてjqueryによってdefineされていることを暗黙的に前提している。このコーディングはダメだ。ES Module対応したjquery-4.0.0がグローバル変数として `$` をdefineするわけがない。jquery-4.0.0は `$` をexportする。それをimportして参照するように `windowResize` のコードを修正する必要がある。
+もうひとつ問題がある。 `windowResize-xxxxxxxx.js` のコーディングが `$` がグローバル変数としてjqueryによってdefineされていることを暗黙的に前提している。このコーディングはダメだ。ES Module対応したjquery-4.0.0がグローバル変数として `$` をdefineするわけがない。jquery-4.0.0は `$` をexportする。それをimportして参照するように `src/assets/js/windowResize.js` のコードを修正する必要がある。
 
 === 説明
 

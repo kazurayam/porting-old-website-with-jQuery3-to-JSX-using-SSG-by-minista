@@ -1,12 +1,17 @@
 == step01: 素材としてのwebサイト
 
-Releasesページ link:https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/releases/tag/startingpoint[starting point] のzipファイルをダウンロードして解凍してください。ここで作られたディレクトリを `$ROOT` という記号で表すことにします
+GitHubレポジトリのReleasesページ link:https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/releases/tag/startingpoint[starting point] のzipファイルをダウンロードして解凍してください。`porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista` というディレクトリができたとします。そのフルパスを `$ROOT` というシェル変数で表すことにします
 
-ブラウザで link:{BLOB_URL}/base-project/index.html[`$ROOT/base-project/index.html`] を開いてください。こんな画面が見えるはず。
+```
+$ cd ~/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista
+$ ROOT=`pwd`
+```
+
+ブラウザで link:{BLOB_URL}/base-project/index.html[`$ROOT/base-project/index.html`] ファイルを開いてください。こんな画面が見えるはず。
 
 image:{PAGES_URL}/images/001_base-project-800x875.png[]
 
-ブラウザのウインドウの縁をマウスで捕まえてウインドウを伸び縮みさせると、画面の中のヘッダ部に表示された数字（幅x高さ）が変化する。横幅を狭くするとこうなる。
+ブラウザのウインドウの縁をマウス左クリックして捕まえてウインドウを伸び縮みさせると、画面の中のヘッダ部に表示された数字（幅x高さ）が変化する。横幅を狭くするとこうなる。
 
 * 555x875
 
@@ -25,3 +30,4 @@ HTMLのソースがこれ:
 include::../base-project/index.html[]
 ----
 
+jQuery-3.6.0を使っていることに注目してください。
