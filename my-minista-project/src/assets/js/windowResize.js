@@ -1,5 +1,5 @@
 // js/windowResize.js
-import { $ } from '/src/assets/js/jquery-4.0.0.module.min'
+import { $ } from 'jquery'
 
 function waitForJquery(callback) {
     const intervalId = setInterval(() => {

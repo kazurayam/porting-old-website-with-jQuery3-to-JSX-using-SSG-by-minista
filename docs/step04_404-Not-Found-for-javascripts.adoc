@@ -1,0 +1,122 @@
+== step04: 404 Not Found for JavaScripts
+
+`my-minista-project` で静的サイト生成を実行した。
+
+[source,shell]
+----
+$ cd $ROOT/my-minista-project
+$ bun run build
+$ minista build
+vite v8.2.2 building ssr environment for production...
+✓ 9 modules transformed.
+computing gzip size...
+node_modules/.minista/ssr/__minista-ssg.mjs  3.95 kB │ gzip: 1.35 kB
+
+✓ built in 1.05s
+vite v8.2.2 building client environment for production...
+✓ 17 modules transformed.
+computing gzip size...
+dist/index.html                    1.83 kB │ gzip: 0.87 kB
+dist/assets/seagull-DMex-28w.jpg  30.04 kB
+dist/assets/bundle-DLJ25iAG.css    0.67 kB │ gzip: 0.30 kB
+
+✓ built in 154ms
+----
+
+特にエラーメッセージは無い。次にviteのproductionサーバを立ち上げた。
+
+[source,shell]
+----
+$ bun run preview
+$ minista preview
+  ➜  Local:   http://localhost:4173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+----
+
+ブラウザで http://localhost:4173 を開いてみた。
+
+image:{PAGES_URL}/images/041_404-Not-Found-for-javascripts.png[]
+
+画面のヘッダー部にウインドウのwidth x heightの数字が表示されず、代わりに "my-minista-project" という文字が表示された。これはHTMLが `<script>` タグを実行するのに失敗したことを意味している。
+
+ブラウザのDevToolsのコンソールを調べるとエラーメッセージが表示されていた。
+
+>:4173/:44  GET http://localhost:4173/src/assets/js/jquery-3.6.0.min.js net::ERR_ABORTED 404 (Not Found)
+（インデックス）:45  GET http://localhost:4173/src/assets/js/windowResize.js net::ERR_ABORTED 404 (Not Found)
+
+productionサーバは http://localhost:5173 へのリクエストに対して `my-minista-project/dist/index.html` ファイルを応答したはずだ。その中を調べた。こういうコードが書いてあった。
+
+[source,html]
+----
+    </footer>
+    <script src="/src/assets/js/jquery-3.6.0.min.js"></script>
+    <script src="/src/assets/js/windowResize.js"></script>
+  </body>
+</html>
+----
+
+ああ、これでは 404 Not Found になって当然だ。`my-minista-project/dist` ディレクトリの下に `/src/assets/js/jquery-3.6.0.min.js` というファイルは存在しないのだから。
+
+=== 対処方法
+
+ministaの link:https://minista.qranoko.jp/docs/plugins/entry[pluginEntry] を導入する必要があった。pluginEntryを導入すると ministaはwebページが `<script>` タグを介して結びついているスクリプトを検出し、ビルドプロセスに乗せる。pluginEntryがないと `<script>` タグはrolldownされることなくそのまま `dist` に出力されて、結果的に404(Not Found)のエラーを引き起こす。
+
+=== 説明
+
+`my-minista-project/vite.config.ts` ファイルを修正した。
+
+[source,typescript]
+----
+- import { defineConfig, pluginSsg, pluginBundle, pluginBeautify } from "minista"
++ import { defineConfig, pluginSsg, pluginBundle, pluginEntry, pluginBeautify } from "minista"
+
+      }),
++     pluginEntry(),
+      pluginBeautify()
+    ],
+  })
+----
+
+その後 `bun run build` を再度実行した。
+
+[source,shell]
+----
+$ bun run build
+$ minista build
+vite v8.2.2 building ssr environment for production...
+✓ 9 modules transformed.
+computing gzip size...
+node_modules/.minista/ssr/__minista-ssg.mjs  3.95 kB │ gzip: 1.35 kB
+
+✓ built in 71ms
+vite v8.2.2 building client environment for production...
+✓ 19 modules transformed.
+computing gzip size...
+dist/index.html                             1.84 kB │ gzip:  0.88 kB
+dist/assets/seagull-DMex-28w.jpg           30.04 kB
+dist/assets/bundle-DLJ25iAG.css             0.67 kB │ gzip:  0.30 kB
+dist/assets/windowResize-DW7TLUZC.js        0.19 kB │ gzip:  0.14 kB
+dist/assets/rolldown-runtime-BpQH8Ho1.js    0.33 kB │ gzip:  0.23 kB
+dist/assets/jquery-3.6.0.min-CvDmJdXJ.js  134.04 kB │ gzip: 36.39 kB
+
+✓ built in 474ms
+----
+
+javascriptのファイルがbuild処理されてdistディレクトリの下に出力されたことがわかる。
+
+`dist/index.html` の `<script>` タグはこう出力されていた。
+
+[source,html]
+----
+    ...
+    </footer>
+    <script src="/assets/jquery-3.6.0.min-CvDmJdXJ.js"></script>
+    <script src="/assets/windowResize-DW7TLUZC.js"></script>
+  </body>
+</html>
+----
+
+src属性が書き換えられて dist/assets ディレクトリ下に出力されたjavascriptファイルを適切に指し示している。pluginEntryがちゃんと動いたように見える。
+
+Gitタグ link:https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/tree/step04-done[step04-done] をcheckoutすれば ここまでの対処を完了したソースコードを取り出すことができます。

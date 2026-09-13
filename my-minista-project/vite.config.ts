@@ -1,3 +1,4 @@
+// my-minista-project/vite.config.ts
 import { defineConfig, pluginSsg, pluginBundle, pluginEntry, pluginBeautify } from "minista"
 
 export default defineConfig({

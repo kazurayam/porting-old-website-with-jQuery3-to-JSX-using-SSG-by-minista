@@ -1,0 +1,39 @@
+== step05: Cannot use import statement outside a module
+
+step04の修正を施した後で `bun run build` して `bun run preview` を実行した。ブラウザで http://localhost:4173 を開いてDevToolsのコンソールを見た。するとエラーメッセージが出力されていた。
+
+image:{PAGES_URL}/images/051_Cannot-use-import-statement.png[]
+
+>jquery-3.6.0.min-CvDmJdXJ.js:1 Uncaught SyntaxError: Cannot use import statement outside a module (at jquery-3.6.0.min-CvDmJdXJ.js:1:1)
+
+このエラーを解消したい。
+
+=== 対処方法
+
+"Cannot use import statement outside a module" をキーとして検索したら某AIがこんなレスを返した。
+
+>This error occurs when JavaScript encounters an import statement outside of a valid ES module context. To fix it, ensure that your script tag includes type="module" 
+
+このキーで検索すればたくさんのweb記事がヒットした。例えば link:https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html[Mdn, JavaScript modules] も読んだ。
+
+=== 説明
+
+"Cannot use import statement outside a module" というエラーを解消するためには HTMLの中の `<script>` タグに `type="module"` 属性を追加せよ、ということだ。そこで `my-minista-project/src/layouts/index.ts` を修正した。
+
+[source,typescript]
+----
+        <MyFooter />
+-       <script src="/src/assets/js/jquery-3.6.0.min.js"></script>
++       <script type="module" src="/src/assets/js/jquery-3.6.0.min.js"></script>
+-       <script src="/src/assets/js/windowResize.js"></script>
++       <script type="module" src="/src/assets/js/windowResize.js"></script>
+    </>
+----
+
+`bun run build` を実行した。`dist/index.html` をエディタで開きその中の `<script>` タグに `type="module"` が書かれていることを確認した。そして `bun run preview` でproductionサーバを立ち上げた。ブラウザで `http://localhost:4173` を開き、コンソールタブをみた。
+
+"Cannot use import statement outside a module" のメッセージが消えていた。効果があったと思われる。
+
+Gitタグ link:https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/tree/step05-done[step05-done] をcheckoutすれば ここまでの対処を完了したソースコードを取り出すことができます。
+
+
