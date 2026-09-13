@@ -102,3 +102,6 @@ DevToolsのコンソールにエラーは無かった。
 head部分に幅と高さの数字 "800x580" が表示された。
 マウスでウインドウを捕まえてリサイズすると数字が動いた。
 良い感じだ。
+
+Gitタグ link:https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/tree/step06-done[step06-done] をcheckoutすれば ここまでの対処を完了したソースコードを取り出すことができます。
+

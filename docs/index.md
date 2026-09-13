@@ -152,6 +152,10 @@ HTMLのソースがこれ:
         "react-dom": "^19.2.8",
         "typescript": "^7.0.2",
         "vite": "^8.2.1"
+      },
+      "dependencies": {
+        "@types/jquery": "^4.0.1",
+        "jquery": "^4.0.0"
       }
     }
 
@@ -431,3 +435,188 @@ DevToolsのコンソールにエラーは無かった。
 head部分に幅と高さの数字 "800x580" が表示された。
 マウスでウインドウを捕まえてリサイズすると数字が動いた。
 良い感じだ。
+
+Gitタグ [step06-done](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/tree/step06-done) をcheckoutすれば ここまでの対処を完了したソースコードを取り出すことができます。
+
+## step07: jquery4を外部依存パッケージとしてインストールするべき
+
+step06の修正が完了した段階で `my-minista-project/package.json` はこうなっていた。
+
+    {
+      "name": "minista-project",
+      "private": true,
+      "type": "module",
+      "scripts": {
+        "dev": "minista",
+        "build": "minista build",
+        "preview": "minista preview"
+      },
+      "devDependencies": {
+        "@types/node": "^26.2.0",
+        "@types/react": "^19.2.18",
+        "@types/react-dom": "^19.2.4",
+        "minista": "^4.0.11",
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8",
+        "typescript": "^7.0.2",
+        "vite": "^8.2.1"
+      }
+    }
+
+みての通り、jquery-4.0.0に対するdependencyは `package.json` で宣言されていない。
+
+その一方で `my-minista-project/src/layouts/index.tsx` にはこう書いてある。
+
+          <MyFooter />
+          <script type="module" src="/src/assets/js/jquery-4.0.0.module.min.js"></script>
+          <script type="module" src="/src/assets/js/windowResize.js"></script>
+        </>
+      )
+    }
+
+そして `my-minista-project/src/assets/js/windowResize.js` はこう書いている。
+
+    // js/windowResize.js
+    import { $ } from '/src/assets/js/jquery-4.0.0.module.min.js'
+    $(function () {
+        ...
+
+これらを眺めると奇妙な感じがする。jqueryがES moduleのようでES moduleでないようで…​
+
+### 対処方法
+
+jqueryを首尾一貫してES moduleとして扱おう。`` bun add jquery`でプロジェクトにインストールする。 ``&lt;script src="jquery-xxxx"&gt;\` は削除しよう。
+
+### 説明
+
+`my-minista-project` に dependencies のひとつとして jqueryを追加しよう。
+
+    $ cd $ROOT/my-minista-project
+    $ bun add jquery@latest
+    $ bun add jquery@latest
+    bun add v1.4.0 (34cbb9a40)
+
+    installed jquery@4.0.0
+
+    1 package installed [1129.00ms]
+
+TypeScriptでアプリを書くためには @types/jquery も追加する必要がある。
+
+    $ bun add @types/jquery
+    bun add v1.4.0 (34cbb9a40)
+
+    installed @types/jquery@4.0.1
+
+    1 package installed [1044.00ms]
+
+以上によって `package.json` はこうなった。
+
+    {
+      "name": "minista-project",
+      "private": true,
+      "type": "module",
+      "scripts": {
+        "dev": "minista",
+        "build": "minista build",
+        "preview": "minista preview"
+      },
+      "devDependencies": {
+        "@types/node": "^26.2.0",
+        "@types/react": "^19.2.18",
+        "@types/react-dom": "^19.2.4",
+        "minista": "^4.0.11",
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8",
+        "typescript": "^7.0.2",
+        "vite": "^8.2.1"
+      },
+      "dependencies": {
+        "@types/jquery": "^4.0.1",
+        "jquery": "^4.0.0"
+      }
+    }
+
+次に `my-minista-project/src/layouts/index.tsx` を修正した。
+
+            <MyFooter />
+    -       <script type="module" src="/src/assets/js/jquery-4.0.0.module.min.js"></script>
+            <script type="module" src="/src/assets/js/windowResize.js"></script>
+          </>
+
+つまりjqueryのための `<script>` タグがもはや不要なので削除した。
+
+次に `my-minista-project/src/assets/js/windowResize.js` を修正した。
+
+      // js/windowResize.js
+    - import { $ } from '/src/assets/js/jquery-4.0.0.module.min.js'
+    + import { $ } from 'jquery'
+
+      $(function () {
+          ...
+
+ここで画面を確認しよう。`bun run dev` とやって開発サーバを起動し、ブラウザで `http://localhost:5173` を目視確認した。OKだった。
+
+`bun run build` をやった。
+
+    $ bun run build
+    $ minista build
+    vite v8.2.2 building ssr environment for production...
+    ✓ 9 modules transformed.
+    computing gzip size...
+    node_modules/.minista/ssr/__minista-ssg.mjs  3.90 kB │ gzip: 1.34 kB
+
+    ✓ built in 93ms
+    vite v8.2.2 building client environment for production...
+    ✓ 19 modules transformed.
+    computing gzip size...
+    dist/index.html                         1.79 kB │ gzip:  0.86 kB
+    dist/assets/seagull-DMex-28w.jpg       30.04 kB
+    dist/assets/bundle-DLJ25iAG.css         0.67 kB │ gzip:  0.30 kB
+    dist/assets/windowResize-B7kvWfTS.js  112.64 kB │ gzip: 31.96 kB
+
+    ✓ built in 257ms
+
+ministaのビルド処理が `dist/assets` ディレクトリにjqueryのjsファイルを出力しなくなった。
+その代わり `node_modules/jquery` ディレクトリができていた。
+
+    $ cd $ROOT/my-minista-project
+    $ tree node_modules/jquery -L 1
+    node_modules/jquery
+    ├── AUTHORS.txt
+    ├── LICENSE.txt
+    ├── README.md
+    ├── bower.json
+    ├── changelog.md
+    ├── dist
+    ├── dist-module
+    ├── package.json
+    └── src
+
+`bun run preview` コマンドでproductionサーバを起動し、ブラウザで `http://localhost:4173/` を開いた。OKだった。
+
+最後に `my-minista-project/src/assets/js` ディレクトリから jquery のファイルを削除した。
+
+    $ cd $ROOT/my-minista-project
+    $ tree src/assets/js
+    src/assets/js
+    ├── jquery-3.6.0.min.js
+    ├── jquery-4.0.0.module.min.js
+    └── windowResize.js
+
+    1 directory, 3 files
+
+    $ rm src/assets/js/jquery*
+
+    $ tree src/assets/js
+    src/assets/js
+    └── windowResize.js
+
+    1 directory, 1 file
+
+もう一度画面確認をしよう。`bun run build` して `bun run preview` して <http://localhost:4173> を目視しよう。OKだった。これで作業は完了した。
+
+Gitタグ [step07-done](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/tree/step07-done) をcheckoutすれば ここまでの対処を完了したソースコードを取り出すことができます。
+
+## 結び
+
+TODO

@@ -17,4 +17,8 @@ include::./step05_Cannot-use-import-statement-outside-a-module.adoc[]
 
 include::./step06_$-is-not-defined.adoc[]
 
+include::./step07_jquery4-as-dependency.adoc[]
+
+include::./conclusion.adoc[]
+
 

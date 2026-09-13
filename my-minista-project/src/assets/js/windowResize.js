@@ -1,5 +1,6 @@
 // js/windowResize.js
-import { $ } from '/src/assets/js/jquery-4.0.0.module.min.js'
+import { $ } from 'jquery'
+
 $(function () {
     $(window).on('resize', function () {
         const w = $(window).width()
