@@ -619,4 +619,6 @@ Gitタグ [step07-done](https://github.com/kazurayam/porting-old-website-with-jQ
 
 ## 結び
 
-TODO
+ES Module非対応のjQuery v3.6.0を使っている古き良きHTMLサイトをTypeScript言語でJSXで書き直し、LayoutとページテンプレートをTypeScript言語でJSX構文で書いて、[minista](https://minista.qranoko.jp/) を使って静的サイトを生成することに成功した。途中、さまざまのエラーに遭遇したがすべて解消することができた。
+
+古いwebサイトを最新のTypeScript+JSXに移行したいが、Apacheサーバのhtdocsディレクトリにファイルを置くだけの素朴なシステム構成を維持したいと念願している人の参考になればいいなと思う。
