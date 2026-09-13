@@ -1,6 +1,6 @@
 == step02: JSXで書き換えた
 
-`$ROOT/my-minista-project` を作った。別記事 link:https://zenn.dev/kazurayam/articles/ae376ca6bff235[スタティックサイトジェネレーター minista を試してみた] で詳細を説明したサンプルを下敷きにした。HTMLを少し修正し、JavaScriptを追加した。 `my-minista-project/src/assets/js/windowResize.js` がstep01で説明した `800x875` とか `555x875` とか `800x389` とかの動的表示を実装している。 
+`$ROOT/my-minista-project` を作った。別記事 link:https://zenn.dev/kazurayam/articles/ae376ca6bff235[スタティックサイトジェネレーター minista を試してみた] で詳細を説明したサンプルを下敷きにした。HTMLを少し修正し、JavaScriptを追加した。 `my-minista-project/src/assets/js/windowResize.js` がstep01で説明した `800x875` とか `555x875` とか `800x389` とかの動きを実装している。 
 
 [source,shell]
 ----
@@ -38,43 +38,106 @@ my-minista-project
 
 [source,typescript]
 ----
-include::../my-minista-project/vite.config.ts[]
+import { defineConfig, pluginSsg, pluginBundle, pluginBeautify } from "minista"
+
+export default defineConfig({
+// my-minista-project/vite.config.ts
+  plugins: [
+    pluginSsg({
+      layout: "/src/layouts/index.{tsx,jsx}",
+      src: ["/src/pages/**/*.{tsx,jsx,mdx,md}"],
+      srcBases: ["/src/pages"],
+    }),
+    pluginBundle({
+      src: ["/src/layouts/index.{tsx,jsx}", "/src/pages/**/*.{tsx,jsx,mdx}"],
+      outName: "bundle",
+      useExportCss: true,
+    }),
+    pluginBeautify()
+  ],
+})
+
 ----
 
 * `package.json`
 
 [source,json]
 ----
-include::../my-minista-project/package.json[]
+{
+  "name": "minista-project",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "minista",
+    "build": "minista build",
+    "preview": "minista preview"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "minista": "^4.0.11",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
+  }
+}
+
 ----
 
 * `src/layouts/index.ts`
 
 [source,typescript]
 ----
-include::../my-minista-project/src/layouts/index.ts
+import type { LayoutProps } from "minista/types"
+import { Head } from "minista/head"
+
+import { MyHeader } from "./header"
+import { MyNav } from "./nav"
+import { MyFooter} from "./footer"
+
+import "/src/assets/css/index.css"
+
+export default function (props: LayoutProps) {
+  return (
+    <>
+      <Head htmlAttributes={{ lang: "en" }}>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <title>my-minista-project</title>
+      </Head>
+      <MyHeader />
+      <MyNav />
+      <main className="myMain">
+        {props.children}
+      </main>
+      <MyFooter />
+      <script src="/src/assets/js/jquery-3.6.0.min.js"></script>
+      <script src="/src/assets/js/windowResize.js"></script>
+    </>
+  )
+}
 ----
 
 このコードの中にわたしがJSXに挑みたかった理由が現れている。HTMLの `<header>` 要素と `<nav>` 要素と `<footer>` 要素をコンポーネントとしてのJSXコードに分離し、コンポーネント `MyHeader` と `MyNav` と `MyFooter` の組み合わせとしてページのレイアウトを構成する、ということをやりたかった。
 
-* `src/layouts/header.ts`
+* `src/layouts/header.tsx`
 
 [source,typescript]
 ----
-include::../my-minista-project/src/layouts/header.ts
+include::../my-minista-project/src/layouts/header.tsx[]
 ----
 
-* `src/layouts/nav.ts`
-
-[source,typescript]
-----
-include::../my-minista-project/src/layouts/nav.ts
-----
-
-* `src/layouts/footer.ts`
+* `src/layouts/nav.tsx`
 
 [source,typescript]
 ----
-include::../my-minista-project/src/layouts/footer.ts
+include::../my-minista-project/src/layouts/nav.tsx[]
 ----
 
+* `src/layouts/footer.tsx`
+
+[source,typescript]
+----
+include::../my-minista-project/src/layouts/footer.tsx[]
+----

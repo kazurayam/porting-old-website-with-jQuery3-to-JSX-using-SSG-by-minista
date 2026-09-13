@@ -1,3 +1,4 @@
+// src/layouts/footer.tsx
 export const MyFooter = () => {
     return (
         <footer className="myfooter">

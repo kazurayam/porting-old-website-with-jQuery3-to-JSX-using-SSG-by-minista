@@ -1,3 +1,4 @@
+// src/layouts/nav.tsx
 export const MyNav = () => {
     return (
         <nav className="mynav">

@@ -5,13 +5,16 @@
 
 ## step01: 素材としてのwebサイト
 
-Releasesページ [starting point](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/releases/tag/startingpoint) のzipファイルをダウンロードして解凍してください。ここで作られたディレクトリを `$ROOT` という記号で表すことにします
+GitHubレポジトリのReleasesページ [starting point](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/releases/tag/startingpoint) のzipファイルをダウンロードして解凍してください。`porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista` というディレクトリができたとします。そのフルパスを `$ROOT` というシェル変数で表すことにします
 
-ブラウザで [`$ROOT/base-project/index.html`](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/blob/article/base-project/index.html) を開いてください。こんな画面が見えるはず。
+    $ cd ~/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista
+    $ ROOT=`pwd`
+
+ブラウザで [`$ROOT/base-project/index.html`](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/blob/article/base-project/index.html) ファイルを開いてください。こんな画面が見えるはず。
 
 ![001 base project 800x875](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/001_base-project-800x875.png)
 
-ブラウザのウインドウの縁をマウスで捕まえてウインドウを伸び縮みさせると、画面の中のヘッダ部に表示された数字（幅x高さ）が変化する。横幅を狭くするとこうなる。
+ブラウザのウインドウの縁をマウス左クリックして捕まえてウインドウを伸び縮みさせると、画面の中のヘッダ部に表示された数字（幅x高さ）が変化する。横幅を狭くするとこうなる。
 
 -   555x875
 
@@ -74,9 +77,11 @@ HTMLのソースがこれ:
     </body>
     </html>
 
+jQuery-3.6.0を使っていることに注目してください。
+
 ## step02: JSXで書き換えた
 
-`$ROOT/my-minista-project` を作った。別記事 [スタティックサイトジェネレーター minista を試してみた](https://zenn.dev/kazurayam/articles/ae376ca6bff235) で詳細を説明したサンプルを下敷きにした。HTMLを少し修正し、JavaScriptを追加した。 `my-minista-project/src/assets/js/windowResize.js` がstep01で説明した `800x875` とか `555x875` とか `800x389` とかの動的表示を実装している。
+`$ROOT/my-minista-project` を作った。別記事 [スタティックサイトジェネレーター minista を試してみた](https://zenn.dev/kazurayam/articles/ae376ca6bff235) で詳細を説明したサンプルを下敷きにした。HTMLを少し修正し、JavaScriptを追加した。 `my-minista-project/src/assets/js/windowResize.js` がstep01で説明した `800x875` とか `555x875` とか `800x389` とかの動きを実装している。
 
     $ tree my-minista-project -I node_modules
     my-minista-project
@@ -110,10 +115,10 @@ HTMLのソースがこれ:
 
 <!-- -->
 
-    // my-minista-project/vite.config.ts
-    import { defineConfig, pluginSsg, pluginBundle, pluginEntry, pluginBeautify } from "minista"
+    import { defineConfig, pluginSsg, pluginBundle, pluginBeautify } from "minista"
 
     export default defineConfig({
+    // my-minista-project/vite.config.ts
       plugins: [
         pluginSsg({
           layout: "/src/layouts/index.{tsx,jsx}",
@@ -125,7 +130,6 @@ HTMLのソースがこれ:
           outName: "bundle",
           useExportCss: true,
         }),
-        pluginEntry(),
         pluginBeautify()
       ],
     })
@@ -152,10 +156,6 @@ HTMLのソースがこれ:
         "react-dom": "^19.2.8",
         "typescript": "^7.0.2",
         "vite": "^8.2.1"
-      },
-      "dependencies": {
-        "@types/jquery": "^4.0.1",
-        "jquery": "^4.0.0"
       }
     }
 
@@ -163,27 +163,79 @@ HTMLのソースがこれ:
 
 <!-- -->
 
-    include::../my-minista-project/src/layouts/index.ts
+    import type { LayoutProps } from "minista/types"
+    import { Head } from "minista/head"
+
+    import { MyHeader } from "./header"
+    import { MyNav } from "./nav"
+    import { MyFooter} from "./footer"
+
+    import "/src/assets/css/index.css"
+
+    export default function (props: LayoutProps) {
+      return (
+        <>
+          <Head htmlAttributes={{ lang: "en" }}>
+            <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+            <title>my-minista-project</title>
+          </Head>
+          <MyHeader />
+          <MyNav />
+          <main className="myMain">
+            {props.children}
+          </main>
+          <MyFooter />
+          <script src="/src/assets/js/jquery-3.6.0.min.js"></script>
+          <script src="/src/assets/js/windowResize.js"></script>
+        </>
+      )
+    }
 
 このコードの中にわたしがJSXに挑みたかった理由が現れている。HTMLの `<header>` 要素と `<nav>` 要素と `<footer>` 要素をコンポーネントとしてのJSXコードに分離し、コンポーネント `MyHeader` と `MyNav` と `MyFooter` の組み合わせとしてページのレイアウトを構成する、ということをやりたかった。
 
--   `src/layouts/header.ts`
+-   `src/layouts/header.tsx`
 
 <!-- -->
 
-    include::../my-minista-project/src/layouts/header.ts
+    // src/layouts/header.tsx
+    export const MyHeader = () => {
+        return (
+            <header className="myheader">
+                <h1>my-minista-project</h1>
+            </header>
+        )
+    }
 
--   `src/layouts/nav.ts`
+-   `src/layouts/nav.tsx`
 
 <!-- -->
 
-    include::../my-minista-project/src/layouts/nav.ts
+    // src/layouts/nav.tsx
+    export const MyNav = () => {
+        return (
+            <nav className="mynav">
+                <ul className="topnav">
+                    <li><a href="/">Top</a></li>    
+                    <li><a href="/about/">About</a></li>
+                    <li><a href="#">News</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        )
+    }
 
--   `src/layouts/footer.ts`
+-   `src/layouts/footer.tsx`
 
 <!-- -->
 
-    include::../my-minista-project/src/layouts/footer.ts
+    // src/layouts/footer.tsx
+    export const MyFooter = () => {
+        return (
+            <footer className="myfooter">
+                <p>Footer</p>
+            </footer>
+        )
+    }
 
 ## step03: <http://localhost:5173> はOKだった
 
@@ -247,8 +299,7 @@ viteの開発サーバを起動してURL `http://localhost:5173` を目視確認
 
 ブラウザのDevToolsのコンソールを調べるとエラーメッセージが表示されていた。
 
-&gt;:4173/:44 GET <http://localhost:4173/src/assets/js/jquery-3.6.0.min.js> net::ERR\_ABORTED 404 (Not Found)
-（インデックス）:45 GET <http://localhost:4173/src/assets/js/windowResize.js> net::ERR\_ABORTED 404 (Not Found)
+> :4173/:44 GET <http://localhost:4173/src/assets/js/jquery-3.6.0.min.js> net::ERR\_ABORTED 404 (Not Found)
 
 productionサーバは <http://localhost:5173> へのリクエストに対して `my-minista-project/dist/index.html` ファイルを応答したはずだ。その中を調べた。こういうコードが書いてあった。
 
@@ -299,7 +350,7 @@ ministaの [pluginEntry](https://minista.qranoko.jp/docs/plugins/entry) を導�
 
     ✓ built in 474ms
 
-javascriptのファイルがbuild処理されてdistディレクトリの下に出力されたことがわかる。
+javascriptのファイルが二つ、build処理されてdistディレクトリの下に出力されたことがわかる。
 
 `dist/index.html` の `<script>` タグはこう出力されていた。
 
@@ -320,7 +371,7 @@ step04の修正を施した後で `bun run build` して `bun run preview` を�
 
 ![051 Cannot use import statement](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/051_Cannot-use-import-statement.png)
 
-&gt;jquery-3.6.0.min-CvDmJdXJ.js:1 Uncaught SyntaxError: Cannot use import statement outside a module (at jquery-3.6.0.min-CvDmJdXJ.js:1:1)
+> jquery-3.6.0.min-CvDmJdXJ.js:1 Uncaught SyntaxError: Cannot use import statement outside a module (at jquery-3.6.0.min-CvDmJdXJ.js:1:1)
 
 このエラーを解消したい。
 
@@ -328,9 +379,9 @@ step04の修正を施した後で `bun run build` して `bun run preview` を�
 
 "Cannot use import statement outside a module" をキーとして検索したら某AIがこんなレスを返した。
 
-&gt;This error occurs when JavaScript encounters an import statement outside of a valid ES module context. To fix it, ensure that your script tag includes type="module"
+> This error occurs when JavaScript encounters an import statement outside of a valid ES module context. To fix it, ensure that your script tag includes type="module"
 
-このキーで検索すればたくさんのweb記事がヒットした。例えば [Mdn, JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html) も読んだ。
+同じキーで検索したところたくさんのweb記事がヒットした。例えば [Mdn, JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html) も読んだ。
 
 ### 説明
 
@@ -355,15 +406,14 @@ step05の修正を施した後で `bun run build` して `bun run preview` を�
 
 ![061 $ is not defined](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/061_$-is-not-defined.png)
 
-&gt;windowResize-DW7TLUZC.js:1 Uncaught ReferenceError: $ is not defined
-&gt; at windowResize-DW7TLUZC.js:1:1
+> windowResize-DW7TLUZC.js:1 Uncaught ReferenceError: $ is not defined
 
 エラーを発したのは `dist/assets/windowResize-DW7TLUZC.js` ファイルの第1行第１文字だ。それはこんなコードだ。
 
     $(function() {
         ...
 
-古き良きjQueryを知る人にとってはお馴染みのコードだ。`` windowResize-xxxxxxxx.js`はグローバル変数 `$ `` がjQueryによってdefineされていることを仮定して動いた。しかし実際にはグローバル変数 `$` が undefined だった。だから "Uncaught ReferenceError: $ is not defined" が発生した。
+古き良きjQueryを知る人にとってはお馴染みのコードだ。 `windowResize-xxxxxxxx.js` はグローバル変数 `$` がjQueryによってdefineされていることを仮定して動いた。しかし実際にはグローバル変数 `$` が undefined だった。だから "Uncaught ReferenceError: $ is not defined" が発生した。
 
 ### 対処方法
 
@@ -372,9 +422,9 @@ step05で `dist/index.html` が
         <script type="module" src="/assets/jquery-3.6.0.min-CvDmJdXJ.js"></script>
         <script type="module" src="/assets/windowResize-DW7TLUZC.js"></script>
 
-となるようにした。このコードはjquery-3.6.0が ES moduleに対応済みであることを仮定して、モジュールとしてjqueryをimportするやり方をします、と表明したことになる。ところがjquery-3.6.0は2021年3月にリリースされた古いバージョンだ。**実はjquery-3.6.0はES Moduleに未対応だ。** [jquery-4.0.0に関するブログ](https://blog.jquery.com/2026/01/17/jquery-4-0-0/) によれば "jQuery source migrated to ES modules" しているという。だから `my-minista-project` が使うjQueryのバージョンを4.0.0に取り替えなければならない。
+となるようにした。このコードはjquery-3.6.0が ES moduleに対応済みであることを仮定して、モジュールとしてjqueryをimportします、と表明したことになる。ところがjquery-3.6.0は2021年3月にリリースされた古いバージョンだ。**実はjquery-3.6.0はES Moduleに未対応だ。** [jquery-4.0.0に関するブログ](https://blog.jquery.com/2026/01/17/jquery-4-0-0/) によれば "jQuery source migrated to ES modules" しているという。だから `my-minista-project` が使うjQueryのバージョンを4.0.0に取り替えなければならない。
 
-もうひとつ問題がある。 `windowResize-xxxxxxxx.js` のコーディングが `$` がグローバル変数としてjqueryによってdefineされていることを暗黙的に前提している。このコーディングはダメだ。ES Module対応したjquery-4.0.0がグローバル変数として `$` をdefineするわけがない。jquery-4.0.0は `$` をexportする。それをimportして参照するように `windowResize` のコードを修正する必要がある。
+もうひとつ問題がある。 `windowResize-xxxxxxxx.js` のコーディングが `$` がグローバル変数としてjqueryによってdefineされていることを暗黙的に前提している。このコーディングはダメだ。ES Module対応したjquery-4.0.0がグローバル変数として `$` をdefineするわけがない。jquery-4.0.0は `$` をexportする。それをimportして参照するように `src/assets/js/windowResize.js` のコードを修正する必要がある。
 
 ### 説明
 
@@ -481,11 +531,11 @@ step06の修正が完了した段階で `my-minista-project/package.json` はこ
     $(function () {
         ...
 
-これらを眺めると奇妙な感じがする。jqueryがES moduleのようでES moduleでないようで…​
+これらを眺めると、jqueryがES moduleでありES moduleでないような、奇妙な感じがする。実際に動きはしたものの気持ちが悪い。
 
 ### 対処方法
 
-jqueryを首尾一貫してES moduleとして扱おう。`` bun add jquery`でプロジェクトにインストールする。 ``&lt;script src="jquery-xxxx"&gt;\` は削除しよう。
+jqueryを首尾一貫してES moduleとして扱おう。`bun add jquery` でプロジェクトにインストールしよう。HTMLから `<script src="jquery-xxxx">` を削除しよう。
 
 ### 説明
 
@@ -576,8 +626,7 @@ TypeScriptでアプリを書くためには @types/jquery も追加する必要�
 
     ✓ built in 257ms
 
-ministaのビルド処理が `dist/assets` ディレクトリにjqueryのjsファイルを出力しなくなった。
-その代わり `node_modules/jquery` ディレクトリができていた。
+ministaのビルド処理が `dist/assets` ディレクトリにjqueryのjsファイルを出力しなくなった。その代わり `node_modules/jquery` ディレクトリができていた。
 
     $ cd $ROOT/my-minista-project
     $ tree node_modules/jquery -L 1

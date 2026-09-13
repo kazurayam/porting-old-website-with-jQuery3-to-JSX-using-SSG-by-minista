@@ -42,8 +42,10 @@ image:{PAGES_URL}/images/041_404-Not-Found-for-javascripts.png[]
 
 ブラウザのDevToolsのコンソールを調べるとエラーメッセージが表示されていた。
 
->:4173/:44  GET http://localhost:4173/src/assets/js/jquery-3.6.0.min.js net::ERR_ABORTED 404 (Not Found)
-（インデックス）:45  GET http://localhost:4173/src/assets/js/windowResize.js net::ERR_ABORTED 404 (Not Found)
+[quote]
+____
+:4173/:44  GET http://localhost:4173/src/assets/js/jquery-3.6.0.min.js net::ERR_ABORTED 404 (Not Found)
+____
 
 productionサーバは http://localhost:5173 へのリクエストに対して `my-minista-project/dist/index.html` ファイルを応答したはずだ。その中を調べた。こういうコードが書いてあった。
 
@@ -103,7 +105,7 @@ dist/assets/jquery-3.6.0.min-CvDmJdXJ.js  134.04 kB │ gzip: 36.39 kB
 ✓ built in 474ms
 ----
 
-javascriptのファイルがbuild処理されてdistディレクトリの下に出力されたことがわかる。
+javascriptのファイルが二つ、build処理されてdistディレクトリの下に出力されたことがわかる。
 
 `dist/index.html` の `<script>` タグはこう出力されていた。
 

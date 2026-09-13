@@ -50,11 +50,12 @@ $(function () {
     ...
 ----
 
-これらを眺めると奇妙な感じがする。jqueryがES moduleのようでES moduleでないようで...
+
+これらを眺めると、jqueryがES moduleでありES moduleでないような、奇妙な感じがする。実際に動きはしたものの気持ちが悪い。
 
 === 対処方法
 
-jqueryを首尾一貫してES moduleとして扱おう。`bun add jquery`でプロジェクトにインストールする。`<script src="jquery-xxxx">` は削除しよう。
+jqueryを首尾一貫してES moduleとして扱おう。`bun add jquery` でプロジェクトにインストールしよう。HTMLから `<script src="jquery-xxxx">` を削除しよう。
 
 === 説明
 
@@ -140,8 +141,7 @@ dist/assets/windowResize-B7kvWfTS.js  112.64 kB │ gzip: 31.96 kB
 ✓ built in 257ms
 ----
 
-ministaのビルド処理が `dist/assets` ディレクトリにjqueryのjsファイルを出力しなくなった。
-その代わり `node_modules/jquery` ディレクトリができていた。
+ministaのビルド処理が `dist/assets` ディレクトリにjqueryのjsファイルを出力しなくなった。その代わり `node_modules/jquery` ディレクトリができていた。
 
 [source,shell]
 ----

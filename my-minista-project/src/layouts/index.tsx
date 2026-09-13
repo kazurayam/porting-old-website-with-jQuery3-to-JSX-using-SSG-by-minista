@@ -1,3 +1,4 @@
+// src/layouts/index.tsx
 import type { LayoutProps } from "minista/types"
 import { Head } from "minista/head"
 
