@@ -204,3 +204,230 @@ viteの開発サーバを起動してURL `http://localhost:5173` を目視確認
 ![031 localhost5173 1066x639](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/031_localhost5173-1066x639.png)
 
 開発サーバが応答したwebページは問題なく表示された。マウスでウインドウの幅を広げたり狭くしたりすれば、画面のheader部に "width x height" の数字が動くのが見えた。ブラウザのDevToolsのコンソールにエラーメッセージはひとつも出力されていなかった。わたしは `base-project` の `index.html` をJSXで書き直すことに成功した、と思った。ところがこの先でつまづいた。
+
+## step04: 404 Not Found for JavaScripts
+
+`my-minista-project` で静的サイト生成を実行した。
+
+    $ cd $ROOT/my-minista-project
+    $ bun run build
+    $ minista build
+    vite v8.2.2 building ssr environment for production...
+    ✓ 9 modules transformed.
+    computing gzip size...
+    node_modules/.minista/ssr/__minista-ssg.mjs  3.95 kB │ gzip: 1.35 kB
+
+    ✓ built in 1.05s
+    vite v8.2.2 building client environment for production...
+    ✓ 17 modules transformed.
+    computing gzip size...
+    dist/index.html                    1.83 kB │ gzip: 0.87 kB
+    dist/assets/seagull-DMex-28w.jpg  30.04 kB
+    dist/assets/bundle-DLJ25iAG.css    0.67 kB │ gzip: 0.30 kB
+
+    ✓ built in 154ms
+
+特にエラーメッセージは無い。次にviteのproductionサーバを立ち上げた。
+
+    $ bun run preview
+    $ minista preview
+      ➜  Local:   http://localhost:4173/
+      ➜  Network: use --host to expose
+      ➜  press h + enter to show help
+
+ブラウザで <http://localhost:4173> を開いてみた。
+
+![041 404 Not Found for javascripts](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/041_404-Not-Found-for-javascripts.png)
+
+画面のヘッダー部にウインドウのwidth x heightの数字が表示されず、代わりに "my-minista-project" という文字が表示された。これはHTMLが `<script>` タグを実行するのに失敗したことを意味している。
+
+ブラウザのDevToolsのコンソールを調べるとエラーメッセージが表示されていた。
+
+&gt;:4173/:44 GET <http://localhost:4173/src/assets/js/jquery-3.6.0.min.js> net::ERR\_ABORTED 404 (Not Found)
+（インデックス）:45 GET <http://localhost:4173/src/assets/js/windowResize.js> net::ERR\_ABORTED 404 (Not Found)
+
+productionサーバは <http://localhost:5173> へのリクエストに対して `my-minista-project/dist/index.html` ファイルを応答したはずだ。その中を調べた。こういうコードが書いてあった。
+
+        </footer>
+        <script src="/src/assets/js/jquery-3.6.0.min.js"></script>
+        <script src="/src/assets/js/windowResize.js"></script>
+      </body>
+    </html>
+
+ああ、これでは 404 Not Found になって当然だ。`my-minista-project/dist` ディレクトリの下に `/src/assets/js/jquery-3.6.0.min.js` というファイルは存在しないのだから。
+
+### 対処方法
+
+ministaの [pluginEntry](https://minista.qranoko.jp/docs/plugins/entry) を導入する必要があった。pluginEntryを導入すると ministaはwebページが `<script>` タグを介して結びついているスクリプトを検出し、ビルドプロセスに乗せる。pluginEntryがないと `<script>` タグはrolldownされることなくそのまま `dist` に出力されて、結果的に404(Not Found)のエラーを引き起こす。
+
+### 説明
+
+`my-minista-project/vite.config.ts` ファイルを修正した。
+
+    - import { defineConfig, pluginSsg, pluginBundle, pluginBeautify } from "minista"
+    + import { defineConfig, pluginSsg, pluginBundle, pluginEntry, pluginBeautify } from "minista"
+
+          }),
+    +     pluginEntry(),
+          pluginBeautify()
+        ],
+      })
+
+その後 `bun run build` を再度実行した。
+
+    $ bun run build
+    $ minista build
+    vite v8.2.2 building ssr environment for production...
+    ✓ 9 modules transformed.
+    computing gzip size...
+    node_modules/.minista/ssr/__minista-ssg.mjs  3.95 kB │ gzip: 1.35 kB
+
+    ✓ built in 71ms
+    vite v8.2.2 building client environment for production...
+    ✓ 19 modules transformed.
+    computing gzip size...
+    dist/index.html                             1.84 kB │ gzip:  0.88 kB
+    dist/assets/seagull-DMex-28w.jpg           30.04 kB
+    dist/assets/bundle-DLJ25iAG.css             0.67 kB │ gzip:  0.30 kB
+    dist/assets/windowResize-DW7TLUZC.js        0.19 kB │ gzip:  0.14 kB
+    dist/assets/rolldown-runtime-BpQH8Ho1.js    0.33 kB │ gzip:  0.23 kB
+    dist/assets/jquery-3.6.0.min-CvDmJdXJ.js  134.04 kB │ gzip: 36.39 kB
+
+    ✓ built in 474ms
+
+javascriptのファイルがbuild処理されてdistディレクトリの下に出力されたことがわかる。
+
+`dist/index.html` の `<script>` タグはこう出力されていた。
+
+        ...
+        </footer>
+        <script src="/assets/jquery-3.6.0.min-CvDmJdXJ.js"></script>
+        <script src="/assets/windowResize-DW7TLUZC.js"></script>
+      </body>
+    </html>
+
+src属性が書き換えられて dist/assets ディレクトリ下に出力されたjavascriptファイルを適切に指し示している。pluginEntryがちゃんと動いたように見える。
+
+Gitタグ [step04-done](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/tree/step04-done) をcheckoutすれば ここまでの対処を完了したソースコードを取り出すことができます。
+
+## step05: Cannot use import statement outside a module
+
+step04の修正を施した後で `bun run build` して `bun run preview` を実行した。ブラウザで <http://localhost:4173> を開いてDevToolsのコンソールを見た。するとエラーメッセージが出力されていた。
+
+![051 Cannot use import statement](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/051_Cannot-use-import-statement.png)
+
+&gt;jquery-3.6.0.min-CvDmJdXJ.js:1 Uncaught SyntaxError: Cannot use import statement outside a module (at jquery-3.6.0.min-CvDmJdXJ.js:1:1)
+
+このエラーを解消したい。
+
+### 対処方法
+
+"Cannot use import statement outside a module" をキーとして検索したら某AIがこんなレスを返した。
+
+&gt;This error occurs when JavaScript encounters an import statement outside of a valid ES module context. To fix it, ensure that your script tag includes type="module"
+
+このキーで検索すればたくさんのweb記事がヒットした。例えば [Mdn, JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html) も読んだ。
+
+### 説明
+
+"Cannot use import statement outside a module" というエラーを解消するためには HTMLの中の `<script>` タグに `type="module"` 属性を追加せよ、ということだ。そこで `my-minista-project/src/layouts/index.ts` を修正した。
+
+            <MyFooter />
+    -       <script src="/src/assets/js/jquery-3.6.0.min.js"></script>
+    +       <script type="module" src="/src/assets/js/jquery-3.6.0.min.js"></script>
+    -       <script src="/src/assets/js/windowResize.js"></script>
+    +       <script type="module" src="/src/assets/js/windowResize.js"></script>
+        </>
+
+`bun run build` を実行した。`dist/index.html` をエディタで開きその中の `<script>` タグに `type="module"` が書かれていることを確認した。そして `bun run preview` でproductionサーバを立ち上げた。ブラウザで `http://localhost:4173` を開き、コンソールタブをみた。
+
+"Cannot use import statement outside a module" のメッセージが消えていた。効果があったと思われる。
+
+Gitタグ [step05-done](https://github.com/kazurayam/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/tree/step05-done) をcheckoutすれば ここまでの対処を完了したソースコードを取り出すことができます。
+
+## step06: $ is not defined
+
+step05の修正を施した後で `bun run build` して `bun run preview` を実行した。ブラウザで <http://localhost:4173> を開いてDevToolsのコンソールを見た。するとエラーメッセージが出力されていた。
+
+![061 $ is not defined](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/061_$-is-not-defined.png)
+
+&gt;windowResize-DW7TLUZC.js:1 Uncaught ReferenceError: $ is not defined
+&gt; at windowResize-DW7TLUZC.js:1:1
+
+エラーを発したのは `dist/assets/windowResize-DW7TLUZC.js` ファイルの第1行第１文字だ。それはこんなコードだ。
+
+    $(function() {
+        ...
+
+古き良きjQueryを知る人にとってはお馴染みのコードだ。`` windowResize-xxxxxxxx.js`はグローバル変数 `$ `` がjQueryによってdefineされていることを仮定して動いた。しかし実際にはグローバル変数 `$` が undefined だった。だから "Uncaught ReferenceError: $ is not defined" が発生した。
+
+### 対処方法
+
+step05で `dist/index.html` が
+
+        <script type="module" src="/assets/jquery-3.6.0.min-CvDmJdXJ.js"></script>
+        <script type="module" src="/assets/windowResize-DW7TLUZC.js"></script>
+
+となるようにした。このコードはjquery-3.6.0が ES moduleに対応済みであることを仮定して、モジュールとしてjqueryをimportするやり方をします、と表明したことになる。ところがjquery-3.6.0は2021年3月にリリースされた古いバージョンだ。**実はjquery-3.6.0はES Moduleに未対応だ。** [jquery-4.0.0に関するブログ](https://blog.jquery.com/2026/01/17/jquery-4-0-0/) によれば "jQuery source migrated to ES modules" しているという。だから `my-minista-project` が使うjQueryのバージョンを4.0.0に取り替えなければならない。
+
+もうひとつ問題がある。 `windowResize-xxxxxxxx.js` のコーディングが `$` がグローバル変数としてjqueryによってdefineされていることを暗黙的に前提している。このコーディングはダメだ。ES Module対応したjquery-4.0.0がグローバル変数として `$` をdefineするわけがない。jquery-4.0.0は `$` をexportする。それをimportして参照するように `windowResize` のコードを修正する必要がある。
+
+### 説明
+
+[npmのjqueryサイト](https://www.npmjs.com/package/jquery) を見ればjquery-4.0.0の入手方法がわかる。わたしは curlコマンドで <https://code.jquery.com/jquery-4.0.0.module.min.js> をダウンロードし `my-minista-project/src/assets/js/jquery-4.0.0.module.min.js` として保存した。
+
+    $ cd $ROOT/my-minista-project
+    $ tree src/assets/js
+    src/assets/js
+    ├── jquery-3.6.0.min.js
+    ├── jquery-4.0.0.module.min.js
+    └── windowResize.js
+
+    1 directory, 3 files
+
+次に `my-minista-project/src/layouts/index.tsx` を修正した。
+
+            <MyFooter />
+    -       <script type="module" src="/src/assets/js/jquery-3.6.0.min.js"></script>
+    +       <script type="module" src="/src/assets/js/jquery-4.0.0.module.min.js"></script>
+            <script type="module" src="/src/assets/js/windowResize.js"></script>
+          </>
+
+加えて `my-minista-project/src/assets/js/windowResize.js` を修正した。
+
+      // js/windowResize.js
+    + import { $ } from '/src/assets/js/jquery-4.0.0.module.min.js'
+      $(function () {
+          ...
+
+`bun run build` を実行した。
+
+    $ bun run build
+    $ minista build
+    vite v8.2.2 building ssr environment for production...
+    ✓ 9 modules transformed.
+    computing gzip size...
+    node_modules/.minista/ssr/__minista-ssg.mjs  4.01 kB │ gzip: 1.36 kB
+
+    ✓ built in 42ms
+    vite v8.2.2 building client environment for production...
+    ✓ 19 modules transformed.
+    computing gzip size...
+    dist/index.html                                    1.87 kB │ gzip:  0.89 kB
+    dist/assets/seagull-DMex-28w.jpg                  30.04 kB
+    dist/assets/bundle-DLJ25iAG.css                    0.67 kB │ gzip:  0.30 kB
+    dist/assets/windowResize-0ft36a6R.js               0.26 kB │ gzip:  0.19 kB
+    dist/assets/jquery-4.0.0.module.min-BuCeNwKQ.js  112.50 kB │ gzip: 31.91 kB
+
+    ✓ built in 267ms
+
+うまくいっているように見える。
+
+`bun run preview` コマンドでproductionサーバを起動しブラウザで <http://localhost:4173> を開いた。
+
+![062 worked without error](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/images/062_worked-without-error.png)
+
+DevToolsのコンソールにエラーは無かった。
+head部分に幅と高さの数字 "800x580" が表示された。
+マウスでウインドウを捕まえてリサイズすると数字が動いた。
+良い感じだ。

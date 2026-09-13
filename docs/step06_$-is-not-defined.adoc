@@ -1,0 +1,104 @@
+== step06: $ is not defined
+
+step05の修正を施した後で `bun run build` して `bun run preview` を実行した。ブラウザで http://localhost:4173 を開いてDevToolsのコンソールを見た。するとエラーメッセージが出力されていた。
+
+image:{PAGES_URL}/images/061_$-is-not-defined.png[]
+
+>windowResize-DW7TLUZC.js:1 Uncaught ReferenceError: $ is not defined
+>    at windowResize-DW7TLUZC.js:1:1
+
+エラーを発したのは `dist/assets/windowResize-DW7TLUZC.js` ファイルの第1行第１文字だ。それはこんなコードだ。
+
+[source.javascript]
+----
+$(function() {
+    ...
+----
+
+古き良きjQueryを知る人にとってはお馴染みのコードだ。`windowResize-xxxxxxxx.js`はグローバル変数 `$` がjQueryによってdefineされていることを仮定して動いた。しかし実際にはグローバル変数 `$` が undefined だった。だから "Uncaught ReferenceError: $ is not defined" が発生した。
+
+=== 対処方法
+
+step05で `dist/index.html` が 
+
+[source,html]
+----
+    <script type="module" src="/assets/jquery-3.6.0.min-CvDmJdXJ.js"></script>
+    <script type="module" src="/assets/windowResize-DW7TLUZC.js"></script>
+----
+
+となるようにした。このコードはjquery-3.6.0が ES moduleに対応済みであることを仮定して、モジュールとしてjqueryをimportするやり方をします、と表明したことになる。ところがjquery-3.6.0は2021年3月にリリースされた古いバージョンだ。**実はjquery-3.6.0はES Moduleに未対応だ。** link:https://blog.jquery.com/2026/01/17/jquery-4-0-0/[jquery-4.0.0に関するブログ] によれば "jQuery source migrated to ES modules" しているという。だから `my-minista-project` が使うjQueryのバージョンを4.0.0に取り替えなければならない。
+ 
+もうひとつ問題がある。 `windowResize-xxxxxxxx.js` のコーディングが `$` がグローバル変数としてjqueryによってdefineされていることを暗黙的に前提している。このコーディングはダメだ。ES Module対応したjquery-4.0.0がグローバル変数として `$` をdefineするわけがない。jquery-4.0.0は `$` をexportする。それをimportして参照するように `windowResize` のコードを修正する必要がある。
+
+=== 説明
+
+link:https://www.npmjs.com/package/jquery[npmのjqueryサイト] を見ればjquery-4.0.0の入手方法がわかる。わたしは curlコマンドで https://code.jquery.com/jquery-4.0.0.module.min.js をダウンロードし `my-minista-project/src/assets/js/jquery-4.0.0.module.min.js` として保存した。
+
+[source,shell]
+----
+$ cd $ROOT/my-minista-project
+$ tree src/assets/js
+src/assets/js
+├── jquery-3.6.0.min.js
+├── jquery-4.0.0.module.min.js
+└── windowResize.js
+
+1 directory, 3 files
+----
+
+次に `my-minista-project/src/layouts/index.tsx` を修正した。
+
+[source,typescript]
+----
+        <MyFooter />
+-       <script type="module" src="/src/assets/js/jquery-3.6.0.min.js"></script>
++       <script type="module" src="/src/assets/js/jquery-4.0.0.module.min.js"></script>
+        <script type="module" src="/src/assets/js/windowResize.js"></script>
+      </>
+----
+
+加えて `my-minista-project/src/assets/js/windowResize.js` を修正した。
+
+[source,javascript]
+----
+  // js/windowResize.js
++ import { $ } from '/src/assets/js/jquery-4.0.0.module.min.js'
+  $(function () {
+      ...
+----
+
+`bun run build` を実行した。
+
+[source,shell]
+----
+$ bun run build
+$ minista build
+vite v8.2.2 building ssr environment for production...
+✓ 9 modules transformed.
+computing gzip size...
+node_modules/.minista/ssr/__minista-ssg.mjs  4.01 kB │ gzip: 1.36 kB
+
+✓ built in 42ms
+vite v8.2.2 building client environment for production...
+✓ 19 modules transformed.
+computing gzip size...
+dist/index.html                                    1.87 kB │ gzip:  0.89 kB
+dist/assets/seagull-DMex-28w.jpg                  30.04 kB
+dist/assets/bundle-DLJ25iAG.css                    0.67 kB │ gzip:  0.30 kB
+dist/assets/windowResize-0ft36a6R.js               0.26 kB │ gzip:  0.19 kB
+dist/assets/jquery-4.0.0.module.min-BuCeNwKQ.js  112.50 kB │ gzip: 31.91 kB
+
+✓ built in 267ms
+----
+
+うまくいっているように見える。
+
+`bun run preview` コマンドでproductionサーバを起動しブラウザで http://localhost:4173 を開いた。
+
+image:{PAGES_URL}/images/062_worked-without-error.png[]
+
+DevToolsのコンソールにエラーは無かった。
+head部分に幅と高さの数字 "800x580" が表示された。
+マウスでウインドウを捕まえてリサイズすると数字が動いた。
+良い感じだ。

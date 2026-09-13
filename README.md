@@ -7,4 +7,4 @@ ES Module非対応のjQuery v3.6.0を使っている古き良きHTMLサイトを
 古き良きHTMLサイトをJSXで書き直したいと考える人がもしいたら、わたしと同じように四苦八苦するだろう。彼らのために
 わたしが遭遇したエラーとその解消方法を記録して公開する。
 
-- [docs](https://kazurayam.github.io/poring-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/)
+- [docs](https://kazurayam.github.io/porting-old-website-with-jQuery3-to-JSX-using-SSG-by-minista/)

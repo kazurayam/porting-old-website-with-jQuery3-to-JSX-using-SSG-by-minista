@@ -11,4 +11,10 @@ include::./step02_my-minista-project-initial.adoc[]
 
 include::./step03_localhost5173-was-ok.adoc[]
 
+include::./step04_404-Not-Found-for-javascripts.adoc[]
+
+include::./step05_Cannot-use-import-statement-outside-a-module.adoc[]
+
+include::./step06_$-is-not-defined.adoc[]
+
 
